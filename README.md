@@ -2,7 +2,7 @@
 
 ## Overview
 
-Provides timer utility commands.
+Python package that provides timer utility commands.
 
 ## License
 
