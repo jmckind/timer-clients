@@ -5,43 +5,59 @@ import argparse, re, sys
 
 class CountdownCommand(object):
     def __init__(self, options):
-        self.delta = None
-        self._parse_duration(options.duration.lower())
+        self.weeks = 0
+        self.days = 0
+        self.hours = 0
+        self.minutes = 0
+        self.seconds = 0
+
+        print(options)
+        self._parse_options(options)
 
     def execute(self):
         self.start = datetime.now()
-        self.end = self.start + self.delta
+        self.end = self.start + timedelta(
+            weeks=self.weeks,
+            days=self.days,
+            hours=self.hours,
+            minutes=self.minutes,
+            seconds=self.seconds
+        )
 
-        print(self.start - )
-        print(self.delta)
-        while datetime.now() < self.end:
-            remaining = timedelta(seconds=int(datetime.utcnow().time()))
-            print("remaining: {}".format(remaining))
+        print("start: {}".format(self.start))
+        print("  end: {}".format(self.end))
 
-    def _parse_duration(self, duration):
-        match = re.match('^([0-9]+)(mc|ms|s|m|h)$', duration, flags=re.IGNORECASE)
-        if not match:
-            raise ValueError('invalid duration')
+        while True:
+            now = datetime.now()
+            if now >= self.end:
+                break
 
-        value = int(match.group(1))
-        unit = str(match.group(2)).lower()
+            print("remaining: {}".format(self.end - now))
 
-        if unit == 'mc':
-            self.delta = timedelta(microseconds=value)
-        elif unit == 'ms':
-            self.delta = timedelta(milliseconds=value)
-        elif unit == 's':
-            self.delta = timedelta(seconds=value)
-        elif unit == 'm':
-            self.delta = timedelta(minutes=value)
-        elif unit == 'h':
-            self.delta = timedelta(hours=value)
+    def _parse_options(self, options):
+        regex = re.compile('^([0-9]+)(ms|s|m|h|d|w)$', flags=re.IGNORECASE)
+
+        for option in options:
+            match = regex.match(option)
+            value = int(match.group(1))
+            unit = str(match.group(2)).lower()
+
+            if unit == 's':
+                self.seconds = value
+            elif unit == 'm':
+                self.minutes = value
+            elif unit == 'h':
+                self.hours = value
+            elif unit == 'd':
+                self.days = value
+            elif unit == 'w':
+                self.weeks = value
 
 def main():
-    parser = argparse.ArgumentParser(description='A simple countdown timer')
-    parser.add_argument('duration', help='the duration for the countdown timer')
+    if len(sys.argv) <= 1:
+        raise ValueError('invalid duration')
 
-    cmd = CountdownCommand(parser.parse_args())
+    cmd = CountdownCommand(sys.argv[1:])
     cmd.execute()
 
 if __name__ == "__main__":
