@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='timer_clients',
-    version='0.1.3',
+    version='0.2.3',
     description='Python package that provides timer utility commands.',
     license='MIT',
     author='John McKenzie',
